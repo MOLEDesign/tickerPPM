@@ -1,12 +1,10 @@
 <?php
 
+$nationalData=file_get_contents("national.json");
+$fgwData=file_get_contents("fgw.json");
 
-$timeStamp=file_get_contents("http://52.16.172.160:3000/ppm/timestamp");
-$nationalData=file_get_contents("http://52.16.172.160:3000/ppm/national/summary");
-
-
-$timeStamp=json_decode($timeStamp);
-$nationalData=json_decode($nationalData);
+$national=json_decode($nationalData);
+$fgw=json_decode($fgwData);
 
 $date = date("D, j M Y G:i:s O");
 
@@ -24,12 +22,36 @@ echo "<language>English</language>\n";
 echo "<managingEditor>morgan.leecy@firstgroup.com</managingEditor>\n";
 echo "<webMaster>morgan.leecy@firstgroup.com</webMaster>\n";
 
-$currentPPMtext = $nationalData->NationalPPM->PPM->text;
-$currentRollingPPMtext = $nationalData->NationalPPM->RollingPPM->text;
+
+$currentPPM = $national->PPM->text;
+$rollingPPM = $national->RollingPPM->text;
+$totalTrains = $national->Total;
+$totalOnTime = $national->OnTime;
+$totalLate = $national->Late;
+$totalCancel = $national->CancelVeryLate;
+
+$description = "Total Trains : $totalTrains<br />Trains : $totalOnTime<br />Late : $totalLate<br/>Cancel / Very Late : $totalCancel";
 
 echo "<item>\n";
-echo "<title>National - Current PPM $currentPPMtext (last 2 hours $currentRollingPPMtext)</title>\n";
+echo "<title>National PPM - Current $currentPPM% (last 2 hours $rollingPPM%)</title>\n";
+echo "<description>".htmlspecialchars($description)."</description>\n";
+echo "</item>\n";
+
+$FGWPPM = $fgw->PPM->text;
+$FGWrollingPPM = $fgw->RollingPPM->text;
+$FGWtotalTrains = $fgw->Total;
+$FGWtotalOnTime = $fgw->OnTime;
+$FGWtotalLate = $fgw->Late;
+$FGWtotalCancel = $fgw->CancelVeryLate;
+
+$FGWdescription = "Total Trains : $FGWtotalTrains<br />Trains : $FGWtotalOnTime<br />Late : $FGWtotalLate<br/>Cancel / Very Late : $FGWtotalCancel";
+
+echo "<item>\n";
+echo "<title>FGW PPM - Current $FGWPPM% (last 2 hours $FGWrollingPPM%)</title>\n";
+echo "<description>".htmlspecialchars($FGWdescription)."</description>\n";
 echo "</item>\n";
 
 echo "</channel>";
 echo "</rss>";
+
+
